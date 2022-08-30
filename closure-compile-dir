@@ -1,0 +1,27 @@
+#!/bin/bash
+# Compiles all js files in directory 1 (recursive) to the same location in directory 2 (must be same depth, no absolute directories)
+function closure-compile() {
+  setopt SH_WORD_SPLIT
+  for FILE in $(find $1 -type f -name "*.js");
+  do
+    # For reuse throughout, replace path of source with path of dest, without changing file extension
+    REPLACED=${FILE/$1/$2}
+
+    # Get the filepath of the newly created minified file
+    MIN_FILE=${REPLACED/".js"/".min.js"}
+    MIN_REL=${${MIN_FILE//\// }[-1]}
+
+    # Get the filepath for the newly created source map
+    MAP_FILE=${REPLACED/".js"/".min.js.map"}
+    MAP_REL=${${MAP_FILE//\// }[-1]}
+
+    # Get the relative path from map file to the js source
+    # Note: This is why we can't compile to absolute directories, or directories of different depths
+    FILE_REL="$FILE"
+    UP_COUNT=${#${FILE//\// }[@]}-1;
+    for ((i = 0; i < $UP_COUNT; i++)); do FILE_REL="../${FILE_REL}"; done
+
+    closure-compiler --js $FILE --js_output_file $MIN_FILE --create_source_map $MAP_FILE --warning_level QUIET --source_map_location_mapping "$FILE|$FILE_REL" --source_map_location_mapping "$MIN_FILE|$MIN_REL" --output_wrapper '%output%/*# sourceMappingURL='$MAP_REL'*/'
+    echo "Compiled ${FILE} -> ${MIN_FILE}";
+  done
+}
