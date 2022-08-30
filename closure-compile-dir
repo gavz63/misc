@@ -2,10 +2,24 @@
 # Compiles all js files in directory 1 (recursive) to the same location in directory 2 (must be same depth, no absolute directories)
 function closure-compile() {
   setopt SH_WORD_SPLIT
+
+  # Format parameters to remove extraneous characters (they'll mess with our ../ math later)
+  # Removes trailing slash and preceding ./
+  SRC_DIR=$1
+  [[ $SRC_DIR == ./* ]] && SRC_DIR=${SRC_DIR:2}
+  [[ $SRC_DIR == */ ]] && SRC_DIR=${SRC_DIR: : -1}
+
+  DEST_DIR=$2
+  [[ $DEST_DIR == ./* ]] && DEST_DIR=${DEST_DIR:2}
+  [[ $DEST_DIR == */ ]] && DEST_DIR=${DEST_DIR: : -1}
+
   for FILE in $(find $1 -type f -name "*.js");
   do
+    # Strip ./ if present
+    [[ $FILE = ./* ]] && FILE=${FILE:2}
+
     # For reuse throughout, replace path of source with path of dest, without changing file extension
-    REPLACED=${FILE/$1/$2}
+    REPLACED=${FILE/$SRC_DIR/$DEST_DIR}
 
     # Get the filepath of the newly created minified file
     MIN_FILE=${REPLACED/".js"/".min.js"}
