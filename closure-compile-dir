@@ -35,7 +35,7 @@ function closure-compile() {
     UP_COUNT=${#${FILE//\// }[@]}-1;
     for ((i = 0; i < $UP_COUNT; i++)); do FILE_REL="../${FILE_REL}"; done
 
-    closure-compiler --js $FILE --js_output_file $MIN_FILE --create_source_map $MAP_FILE --warning_level QUIET --source_map_location_mapping "$FILE|$FILE_REL" --source_map_location_mapping "$MIN_FILE|$MIN_REL" --output_wrapper '%output%/*# sourceMappingURL='$MAP_REL'*/'
+    closure-compiler --js $FILE --js_output_file $MIN_FILE --create_source_map $MAP_FILE --warning_level QUIET --source_map_location_mapping "$FILE|$FILE_REL" --source_map_location_mapping "$MIN_FILE|$MIN_REL" --output_wrapper '%output%//# sourceMappingURL='$MAP_REL
     echo "Compiled ${FILE} -> ${MIN_FILE}";
   done
 }
